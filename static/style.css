@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans|Rock+Salt|Shadows+Into+Light|Cedarville+Cursive");
+
+#nav-box {
+  font-family: sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid black;
+  padding: 20px;
+  margin: auto;
+}
+
+#nav-box:hover {
+  background-color: green;
+}
+
+#nav-box {
+  background-color: goldenrod;
+}
+#nav-box a {
+  color: black;
+}
+#nav-box a:hover {
+  color: gold;
+}
+#nav-box #home::before {
+  content: "Home";
+}
+#nav-box #page1::before {
+  content: "Favourite Things";
+}
+#nav-box #page2::before {
+  content: "Toronto Maple Leafs";
+}
+#nav-box #page3::before {
+  content: "Thing 3";
+}
+
+#ordered-lists div h3 {
+  text-align: center;
+  color: gold;
+}
+
+body {
+  background-color: #624a2e;
+  color: black;
+}
+
+h1 {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  text-align: center;
+  font-weight: bolder;
+}
+
+p {
+  text-indent: 40px;
+  padding-right: 20px;
+}
+
+table {
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  border: 3px solid white;
+  background-color: #354e89;
+  padding: 20px;
+}
+table th, table td {
+  border: 1px solid white;
+  text-align: center;
+}
+
+.signature {
+  font-family: "Cedarville Cursive", cursive;
+  text-indent: 80px;
+}
+
+/*# sourceMappingURL=style.css.map */
