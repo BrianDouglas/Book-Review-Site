@@ -47,12 +47,34 @@ def logout():
     session["loggedin"] = False
     return render_template("login.html")
     
-@app.route("/index")
+@app.route("/index", methods=["GET", "POST"])
 def index():
     print("index " + str(session["loggedin"]))
     if not session["loggedin"]:
         return render_template("login.html")
-    return render_template("index.html")
+    if request.method == "GET":
+        return render_template("index.html")
+    if request.method == "POST":
+        searchString = request.form.get("searchString")
+        paramString = "%"+searchString+"%"
+        radioSelect = request.form.get("searchType")
+        if radioSelect is None:
+            return render_template("index.html", errorMessage="Error: Please select to search based on ISBN, Title or Author.")
+        if radioSelect == "isbn":
+            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(isbn) LIKE UPPER(:param) ORDER BY isbn",{"param":paramString})
+            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results)
+        if radioSelect == "author":
+            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(author) LIKE UPPER(:param) ORDER BY author",{"param":paramString})
+            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results)
+        if radioSelect == "title":
+            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(title) LIKE UPPER(:param) ORDER BY title",{"param":paramString})
+            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results)
+        return render_template("index.html")
+
+@app.route("/book/<int:book_id>")
+def book(book_id):
+    print(f"searching the book with id: {book_id}")
+    return render_template("book.html")
 
 @app.route("/create", methods=["GET", "POST"])
 def create():

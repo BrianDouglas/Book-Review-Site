@@ -15,9 +15,10 @@
 }
 
 #nav-box {
-  background-color: goldenrod;
+  background-color: lightgreen;
 }
 #nav-box a {
+  font-family: "Cedarville Cursive", cursive;
   color: black;
 }
 #nav-box a:hover {
@@ -33,7 +34,7 @@
   content: "Toronto Maple Leafs";
 }
 #nav-box #page3::before {
-  content: "Thing 3";
+  content: "Logout";
 }
 
 #ordered-lists div h3 {
@@ -42,7 +43,7 @@
 }
 
 body {
-  background-color: #624a2e;
+  background-color: ivory;
   color: black;
 }
 
@@ -59,16 +60,21 @@ p {
 }
 
 table {
+  width: 500px;
   border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  border: 3px solid white;
-  background-color: #354e89;
+  border: 3px solid black;
+  background-color: lightgreen;
   padding: 20px;
 }
-table th, table td {
-  border: 1px solid white;
+table th {
+  border: 1px solid black;
   text-align: center;
+}
+
+table td{
+  border: 1px solid black;
+  padding-left: 20px;
+  text-align: left;
 }
 
 .signature {
@@ -76,4 +82,6 @@ table th, table td {
   text-indent: 80px;
 }
 
-/*# sourceMappingURL=style.css.map */
+.row {
+  padding: 20px;
+}
