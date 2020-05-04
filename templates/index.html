@@ -9,7 +9,7 @@ What book are you searching for?
 
 {% block body %}
 <div class="row">
-    <div class="col-md-6 col-sm-12">
+    <div class="col-lg-6 col-md-12">
         <h4 style="color: gold;">{{ errorMessage }}</h4>
         <form action="{{ url_for('index') }}" method="POST">
             <h4>Search for a book!</h4>
@@ -21,7 +21,7 @@ What book are you searching for?
         </form>
     </div>
 
-    <div class="col-md-6 col-sm-12">
+    <div class="col-lg-6 col-md-12">
         <h3>{{ resultTitle }}</h3>
         <table>
             <tr>

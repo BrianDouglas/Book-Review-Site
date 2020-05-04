@@ -39,8 +39,10 @@ def login():
         if userInfo is None:
             return render_template("login.html", errorMessage = "User does not exist or password incorrect. Please try again.")
         else:
+            session["user_id"] = userInfo[0]
+            session["user_name"] = userInfo[1]
             session["loggedin"] = True
-            return render_template("index.html")
+            return render_template("index.html", username = session["user_name"])
 
 @app.route("/logout")
 def logout():
@@ -49,32 +51,41 @@ def logout():
     
 @app.route("/index", methods=["GET", "POST"])
 def index():
-    print("index " + str(session["loggedin"]))
     if not session["loggedin"]:
         return render_template("login.html")
     if request.method == "GET":
-        return render_template("index.html")
+        return render_template("index.html", username = session["user_name"])
     if request.method == "POST":
         searchString = request.form.get("searchString")
         paramString = "%"+searchString+"%"
+        if len(searchString) < 2:
+            paramString = searchString+"%"
         radioSelect = request.form.get("searchType")
         if radioSelect is None:
-            return render_template("index.html", errorMessage="Error: Please select to search based on ISBN, Title or Author.")
+            return render_template("index.html", errorMessage="Error: Please select to search based on ISBN, Title or Author.", username = session["user_name"])
         if radioSelect == "isbn":
-            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(isbn) LIKE UPPER(:param) ORDER BY isbn",{"param":paramString})
-            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results)
+            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(isbn) LIKE UPPER(:param) ORDER BY isbn",{"param":paramString}).fetchall()
+            if len(results) == 0:
+                return render_template("index.html", resultTitle=f"No matches for {radioSelect}: {searchString}.", header=('Title','Author'), books = results, username = session["user_name"])
+            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results, username = session["user_name"])
         if radioSelect == "author":
-            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(author) LIKE UPPER(:param) ORDER BY author",{"param":paramString})
-            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results)
+            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(author) LIKE UPPER(:param) ORDER BY author",{"param":paramString}).fetchall()
+            if len(results) == 0:
+                return render_template("index.html", resultTitle=f"No matches for {radioSelect}: {searchString}.", header=('Title','Author'), books = results, username = session["user_name"])
+            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results, username = session["user_name"])
         if radioSelect == "title":
-            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(title) LIKE UPPER(:param) ORDER BY title",{"param":paramString})
-            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results)
-        return render_template("index.html")
+            results = db.execute("SELECT id, title, author FROM books WHERE UPPER(title) LIKE UPPER(:param) ORDER BY title",{"param":paramString}).fetchall()
+            if len(results) == 0:
+                return render_template("index.html", resultTitle=f"No matches for {radioSelect}: {searchString}.", header=('Title','Author'), books = results, username = session["user_name"])
+            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results, username = session["user_name"])
+        return render_template("index.html", username = session["user_name"])
 
 @app.route("/book/<int:book_id>")
 def book(book_id):
-    print(f"searching the book with id: {book_id}")
-    return render_template("book.html")
+    book = db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).first()
+    if book is None:
+        return render_template("error.html", errorMessage = "No such book, please return to the search page and try again.")
+    return render_template("book.html", username = session["user_name"], bookData = book)
 
 @app.route("/create", methods=["GET", "POST"])
 def create():

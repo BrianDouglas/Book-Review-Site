@@ -2,13 +2,36 @@
 
 {% block heading%}
 
-Here is your book!
+{{ bookData[2] }}<br>
+by {{ bookData[3] }}
 
 {% endblock %}
 
 
 {% block body %}
 <div class="row">
-    Book stuff goes Here
+    <div class="col-md-4 col-sm-12">
+        <table>
+            <tr>
+                <td style="font-weight: bold;">ISBN</td>
+                <td>{{ bookData[1] }}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Title</td>
+                <td>{{ bookData[2] }}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Author</td>
+                <td>{{ bookData[3] }}</td>
+            </tr>
+            <tr>
+                <td style="font-weight: bold;">Year</td>
+                <td>{{ bookData[4] }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-md-8 col-sm-12">
+        ioakjasdfjkhsdfajhkdfskhjdsfa
+    </div>
 </div>
 {% endblock %}

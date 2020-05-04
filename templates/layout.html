@@ -7,17 +7,14 @@
     </head>
     <body>
         <div class="row">
-            <div id="nav-box" class="col-md-3 col-sm-6 col-xs-12">
-                <a id="home" href="#" class="stretched-link"></a>
+            <div id="nav-box" class="col-md-3 col-sm-12">
+                <a href="{{ url_for('index') }}" class="stretched-link">Search</a>
             </div>
-            <div id="nav-box" class="col-md-3 col-sm-6 col-xs-12">
-                <a id="page1" href="#" class="stretched-link"></a>
+            <div id="nav-box-title" class="col-md-6 col-sm-12" style="font-family: 'Cedarville Cursive', cursive;">
+                Brian's Books
             </div>
-            <div id="nav-box" class="col-md-3 col-sm-6 col-xs-12">
-                <a id="page2" href="#" class="stretched-link"></a>
-            </div>
-            <div id="nav-box" class="col-md-3 col-sm-6 col-xs-12">
-                <a id="page3" href="{{ url_for('logout') }}" class="stretched-link"></a>
+            <div id="nav-box" class="col-md-3 col-sm-12">
+                <a id="page3" href="{{ url_for('logout') }}" class="stretched-link">Logout {{ username }}</a>
             </div>
         </div>
         <h1>{% block heading %}{% endblock %}</h1>
