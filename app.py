@@ -1,10 +1,13 @@
 import os
+import requests
 
 from flask import Flask, session, request, render_template
 from flask_session import Session
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 
@@ -85,7 +88,17 @@ def book(book_id):
     book = db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).first()
     if book is None:
         return render_template("error.html", errorMessage = "No such book, please return to the search page and try again.")
-    return render_template("book.html", username = session["user_name"], bookData = book)
+    image_url = f"https://covers.openlibrary.org/b/isbn/{book[1]}-L.jpg"
+    review_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "aIvAP7hbk9tTnNYDr2sIg","isbns": book[1]})
+    review_data = review_data.json()
+    review_data = review_data["books"][0]
+    desc_data = requests.get("https://www.goodreads.com/book/show.xml", params={"key":"aIvAP7hbk9tTnNYDr2sIg", "id":review_data["id"], "text_only":"True"})
+    desc_soup = BeautifulSoup(desc_data.content)
+    if desc_soup.find("description") is not None:
+        description = desc_soup.find("description").string
+    else:
+        description = "Description not available"
+    return render_template("book.html", username = session["user_name"], bookData = book, reviewData = review_data, description = description, imgsrc = image_url)
 
 @app.route("/create", methods=["GET", "POST"])
 def create():
