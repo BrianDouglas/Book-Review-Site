@@ -1,3 +1,5 @@
+os
+requests
 Flask
 Flask-Session
 psycopg2-binary
