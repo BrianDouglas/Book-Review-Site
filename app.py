@@ -132,10 +132,10 @@ def book(book_id):
     if book is None:
         return render_template("error.html", errorMessage = "No such book, please return to the search page and try again.", username = session["user_name"])
     image_url = f"https://covers.openlibrary.org/b/isbn/{book[1]}-L.jpg"
-    rating_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "aIvAP7hbk9tTnNYDr2sIg","isbns": book[1]})
+    rating_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": os.getenv("GOODREADS_KEY"),"isbns": book[1]})
     rating_data = rating_data.json()
     rating_data = rating_data["books"][0]
-    desc_data = requests.get("https://www.goodreads.com/book/show.xml", params={"key":"aIvAP7hbk9tTnNYDr2sIg", "id":rating_data["id"], "text_only":"True"})
+    desc_data = requests.get("https://www.goodreads.com/book/show.xml", params={"key":os.getenv("GOODREADS_KEY"), "id":rating_data["id"], "text_only":"True"})
     desc_soup = BeautifulSoup(desc_data.content,features="html.parser")
     if desc_soup.find("description") is not None:
         #find description in the xml as string
@@ -170,7 +170,7 @@ def create():
 
 @app.route("/api/<isbn>", methods=["GET"])
 def book_api(isbn):
-    bookData = db.execute("SELECT title, author, year, isbn, CAST(AVG(rating) AS DECIMAL(3,2)), COUNT(*) FROM reviews INNER JOIN books ON books.id = reviews.book_id WHERE isbn = :isbn GROUP BY title, author, year, isbn",{"isbn":isbn}).first()
+    bookData = db.execute("SELECT title, author, year, isbn, CAST(AVG(rating) AS DECIMAL(3,2)), COUNT(reviews) FROM reviews RIGHT JOIN books ON books.id = reviews.book_id WHERE isbn = :isbn GROUP BY title, author, year, isbn",{"isbn":isbn}).first()
     print(bookData)
     if bookData is None:
         return jsonify({"ERROR": "That ISBN is not in the database"}), 404
@@ -180,5 +180,5 @@ def book_api(isbn):
             "year": bookData.year,
             "isbn": bookData.isbn,
             "review_count": bookData.count,
-            "average_score": float(bookData.avg)
+            "average_score": float(bookData.avg) if bookData.avg is not None else None
     })
