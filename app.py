@@ -1,7 +1,7 @@
 import os
 import requests
 
-from flask import Flask, session, request, render_template
+from flask import Flask, session, request, render_template, jsonify
 from flask_session import Session
 
 from sqlalchemy import create_engine
@@ -61,44 +61,95 @@ def index():
     if request.method == "POST":
         searchString = request.form.get("searchString")
         paramString = "%"+searchString+"%"
-        if len(searchString) < 2:
+        if len(searchString) < 3:
             paramString = searchString+"%"
         radioSelect = request.form.get("searchType")
         if radioSelect is None:
-            return render_template("index.html", errorMessage="Error: Please select to search based on ISBN, Title or Author.", username = session["user_name"])
+            return render_template("index.html", 
+                                    errorMessage="Error: Please select to search based on ISBN, Title or Author.", 
+                                    username = session["user_name"])
         if radioSelect == "isbn":
             results = db.execute("SELECT id, title, author FROM books WHERE UPPER(isbn) LIKE UPPER(:param) ORDER BY isbn",{"param":paramString}).fetchall()
             if len(results) == 0:
-                return render_template("index.html", resultTitle=f"No matches for {radioSelect}: {searchString}.", header=('Title','Author'), books = results, username = session["user_name"])
-            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results, username = session["user_name"])
+                return render_template("index.html", 
+                                        resultTitle=f"No matches for {radioSelect}: {searchString}.", 
+                                        header=('Title','Author'), 
+                                        books = results, 
+                                        username = session["user_name"])
+            return render_template("index.html", 
+                                    resultTitle=f"Matches for {searchString}", 
+                                    header=('Title','Author'), 
+                                    books = results, 
+                                    username = session["user_name"])
         if radioSelect == "author":
             results = db.execute("SELECT id, title, author FROM books WHERE UPPER(author) LIKE UPPER(:param) ORDER BY author",{"param":paramString}).fetchall()
             if len(results) == 0:
-                return render_template("index.html", resultTitle=f"No matches for {radioSelect}: {searchString}.", header=('Title','Author'), books = results, username = session["user_name"])
-            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results, username = session["user_name"])
+                return render_template("index.html", 
+                                        resultTitle=f"No matches for {radioSelect}: {searchString}.", 
+                                        header=('Title','Author'), 
+                                        books = results, 
+                                        username = session["user_name"])
+            return render_template("index.html", 
+                                    resultTitle=f"Matches for {searchString}", 
+                                    header=('Title','Author'), 
+                                    books = results, 
+                                    username = session["user_name"])
         if radioSelect == "title":
             results = db.execute("SELECT id, title, author FROM books WHERE UPPER(title) LIKE UPPER(:param) ORDER BY title",{"param":paramString}).fetchall()
             if len(results) == 0:
-                return render_template("index.html", resultTitle=f"No matches for {radioSelect}: {searchString}.", header=('Title','Author'), books = results, username = session["user_name"])
-            return render_template("index.html", resultTitle=f"Matches for {searchString}", header=('Title','Author'), books = results, username = session["user_name"])
+                return render_template("index.html", 
+                                        resultTitle=f"No matches for {radioSelect}: {searchString}.", 
+                                        header=('Title','Author'), 
+                                        books = results, 
+                                        username = session["user_name"])
+            return render_template("index.html", 
+                                    resultTitle=f"Matches for {searchString}", 
+                                    header=('Title','Author'), 
+                                    books = results, 
+                                    username = session["user_name"])
         return render_template("index.html", username = session["user_name"])
 
-@app.route("/book/<int:book_id>")
+@app.route("/book/<int:book_id>", methods = ["GET", "POST"])
 def book(book_id):
+    if not session["loggedin"]:
+        return render_template("login.html")
+    if request.method == "POST":
+        reviewText = request.form.get("userreview")
+        reviewRating = request.form.get("userrating")
+        updating = bool(request.form.get("update"))
+        if updating:
+            db.execute("UPDATE reviews SET review = :review, rating = :rating WHERE user_id = :user AND book_id = :book",
+                        {"review": reviewText,"rating": reviewRating ,"user":session["user_id"], "book":book_id})
+            db.commit()
+        else:
+            db.execute("INSERT INTO reviews (user_id, book_id, rating, review) VALUES (:user,:book,:rating,:review)",
+                        {"review": reviewText,"rating": reviewRating,"user":session["user_id"], "book":book_id})
+            db.commit()
+    local_reviews = db.execute("SELECT username, rating, review FROM reviews JOIN users ON users.id = reviews.user_id WHERE book_id = :id", {"id":book_id}).fetchall()
+    if len(local_reviews) == 0:
+        local_reviews.append((None,None,"No reviews submitted. Be the FIRST!"))
     book = db.execute("SELECT * FROM books WHERE id = :id", {"id":book_id}).first()
     if book is None:
-        return render_template("error.html", errorMessage = "No such book, please return to the search page and try again.")
+        return render_template("error.html", errorMessage = "No such book, please return to the search page and try again.", username = session["user_name"])
     image_url = f"https://covers.openlibrary.org/b/isbn/{book[1]}-L.jpg"
-    review_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "aIvAP7hbk9tTnNYDr2sIg","isbns": book[1]})
-    review_data = review_data.json()
-    review_data = review_data["books"][0]
-    desc_data = requests.get("https://www.goodreads.com/book/show.xml", params={"key":"aIvAP7hbk9tTnNYDr2sIg", "id":review_data["id"], "text_only":"True"})
-    desc_soup = BeautifulSoup(desc_data.content)
+    rating_data = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "aIvAP7hbk9tTnNYDr2sIg","isbns": book[1]})
+    rating_data = rating_data.json()
+    rating_data = rating_data["books"][0]
+    desc_data = requests.get("https://www.goodreads.com/book/show.xml", params={"key":"aIvAP7hbk9tTnNYDr2sIg", "id":rating_data["id"], "text_only":"True"})
+    desc_soup = BeautifulSoup(desc_data.content,features="html.parser")
     if desc_soup.find("description") is not None:
+        #find description in the xml as string
         description = desc_soup.find("description").string
     else:
         description = "Description not available"
-    return render_template("book.html", username = session["user_name"], bookData = book, reviewData = review_data, description = description, imgsrc = image_url)
+    return render_template("book.html", 
+                            username = session["user_name"], 
+                            bookData = book, 
+                            ratingData = rating_data, 
+                            reviews = local_reviews, 
+                            description = description, 
+                            imgsrc = image_url,
+                            reviewed = None)
 
 @app.route("/create", methods=["GET", "POST"])
 def create():
@@ -116,3 +167,18 @@ def create():
         db.execute("INSERT INTO users (username, password) VALUES (:username, crypt(:password,gen_salt('bf')))",{"username":username,"password":password1})
         db.commit()
         return render_template("login.html")
+
+@app.route("/api/<isbn>", methods=["GET"])
+def book_api(isbn):
+    bookData = db.execute("SELECT title, author, year, isbn, CAST(AVG(rating) AS DECIMAL(3,2)), COUNT(*) FROM reviews INNER JOIN books ON books.id = reviews.book_id WHERE isbn = :isbn GROUP BY title, author, year, isbn",{"isbn":isbn}).first()
+    print(bookData)
+    if bookData is None:
+        return jsonify({"ERROR": "That ISBN is not in the database"}), 404
+    return jsonify({
+            "title": bookData.title,
+            "author": bookData.author,
+            "year": bookData.year,
+            "isbn": bookData.isbn,
+            "review_count": bookData.count,
+            "average_score": float(bookData.avg)
+    })

@@ -30,11 +30,11 @@ by {{ bookData[3] }}
             </tr>
             <tr>
                 <td style="font-weight: bold;">Average Rating</td>
-                <td>{{ reviewData["average_rating"] }} out of 5</td>
+                <td>{{ ratingData["average_rating"] }} out of 5</td>
             </tr>
             <tr>
                 <td style="font-weight: bold;">Number of Reviews</td>
-                <td>{{ reviewData["work_ratings_count"] }}</td>
+                <td>{{ ratingData["work_ratings_count"] }}</td>
             </tr>
         </table>
         <div class="row">
@@ -43,7 +43,40 @@ by {{ bookData[3] }}
     </div>
     <div class="col-md-8 col-sm-12">
         <div class="row">
-            {{ description }}
+            <p>{{ description|safe }}</p>
+        </div>
+        <div class="row">
+            <h2>Reviews</h2>
+            <table>
+                <tr>
+                    <th>User</th>
+                    <th>Score</th>
+                    <th>Review</th>
+                </tr>
+                {% set ns = namespace(reviewed='',rating=0) %}
+                {% for review in reviews %}
+                <tr>
+                    {% if username == review[0] %}
+                        {% set ns.reviewed = review[2] %}
+                        {% set ns.rating = review[1] %}
+                    {% endif %}
+                    <td>{{ review[0] }}</td>
+                    <td>{{ review[1] }}</td>
+                    <td>{{ review[2] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="row">
+            <form action="{{ url_for('book', book_id = bookData[0]) }}" method="POST">
+                <label for="userrating" style="font-weight: bold;">Your Rating: </label><br>
+                <input type="range" name="userrating" id="userrating" min="1" max="5" step=".25" value="{{ ns.rating }}" oninput="ratingoutput.value = userrating.value">
+                <output name="ratingoutput" id="ratingoutput">{{ ns.rating }}</output><br>
+                <label for="userreview" style="font-weight: bold;">Your Review: </label><br>
+                <textarea id="userreview" name="userreview" rows="5" cols="100%">{{ ns.reviewed }}</textarea><br>
+                <input type="submit" value = "{% if ns.reviewed %} Edit Review {% else %} Submit Review {% endif %}">
+                <input type="hidden" name="update" id="update" value="{% if ns.reviewed %}True{% else %}{% endif %}">
+            </form>
         </div>
     </div>
 </div>
