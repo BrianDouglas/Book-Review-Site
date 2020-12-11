@@ -3,81 +3,81 @@
 Book review site. Create account, login, review books, read other users reviews. 
 https://bdougbooks.herokuapp.com/ 
  
-#env.bat
+* env.bat
 
--stores the environment variables needed to run the app
+  * stores the environment variables needed to run the app
 
-#app.py
+## app
 
--flask app containing routes and functions for the site
+* flask app containing routes and functions for the site
 
-    :extra import of BeautifulSoup
+    * extra import of BeautifulSoup
         -used for parsing html/xml
         
-    :sets up connection to SQL session
+    * sets up connection to SQL session
     
-    :gets data from database and returns it to our templates
+    * gets data from database and returns it to our templates
         -some processing to make data readable
         
-    :gets user input from templates
+    * gets user input from templates
         -validates the info and sends to database if needed
         
-    :holds session vars
+    * holds session vars
         -inforce logged in requirements
         
-    :api call
+    * api call
         -processes data from database for api call
 
 
- #static
+ ## static
  
- -style.css
+* style.css
  
-    :all the good styling for the site
+  * all the good styling for the site
 
-#templates
+## templates
 
--layout.html
+* layout.html
 
-    :template for basic layout of site.
-        -generates our nav bar
-            -has link to search and logout
-            -has site title
+  * template for basic layout of site.
+    * generates our nav bar
+      * has link to search and logout
+      * has site title
             
--layout_nonav.html
+* layout_nonav.html
 
-    :template for basic layout minus nav bar.
-        -basic layout for pages for non logged in users
+  * template for basic layout minus nav bar.
+    * basic layout for pages for non logged in users
         
--book.html
+* book.html
 
-    :template for /book/<book_id>, entends layout.html
-    :a page for showing information about the given book
-        -Image
-        -Goodreads data
-        -Discription
-        -local reviews
-        -form to add reviews
+  * template for /book/<book_id>, entends layout.html
+  * a page for showing information about the given book
+    * Image
+    * Goodreads data
+    * Discription
+    * local reviews
+    * form to add reviews
         
--create.html
+* create.html
 
-    :template for account creation, extends layout_nonav.html
-        -contains a form taking username and password
+  * template for account creation, extends layout_nonav.html
+    * contains a form taking username and password
         
--error.html
+* error.html
 
-    :template for displaying errors, extends layout.html
-        -displays an error received from app
+  * template for displaying errors, extends layout.html
+    * displays an error received from app
         
--login.html
+* login.html
 
-    :template for logging in, extends layout_nonav.html
-        -redirect here when trying to access any other page while not logged in
-        -form taking username and password
-        -link to create.html
+  * template for logging in, extends layout_nonav.html
+    * redirect here when trying to access any other page while not logged in
+    * form taking username and password
+    * link to create.html
         
--index.html
+* index.html
 
-    :template for our home/search page, extends layout.html
-        -form with radio buttons to select which parameter to search on, and search text
-        -table that is displayed after a POST request with the results of search
+  * template for our home/search page, extends layout.html
+    * form with radio buttons to select which parameter to search on, and search text
+    * table that is displayed after a POST request with the results of search
