@@ -1,11 +1,11 @@
-# project1
- 
-Book review site. Create account, login, review books, read other users reviews. 
-https://bdougbooks.herokuapp.com/ 
- 
-* env.bat
+# Book Review Site
 
-  * stores the environment variables needed to run the app
+Project created for CS50W at Harvard via edX.org
+ 
+Book review site created using only flask, posgresql, HTML and CSS. Create account, login, review books, read other users reviews. 
+https://bdougbooks.herokuapp.com/ 
+
+**NOTE** Publice goodreads API is no longer avialable. Book details pages will no longer load. May circle back to find another solution someday, but I have more pressing projects at the moment.
 
 ## app
 
