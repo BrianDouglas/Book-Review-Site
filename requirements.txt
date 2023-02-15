@@ -5,4 +5,4 @@ psycopg2-binary
 SQLAlchemy
 bs4
 gunicorn
-Werkzeug==0.16.0
+Werkzeug==2.2.3
